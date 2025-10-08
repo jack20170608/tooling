@@ -118,6 +118,8 @@ default via 10.10.10.2 dev ens160 proto static metric 100
 
 ## 4. 关系型数据库postgres 安装和配置，实现关系型数据库自由
 
+请参考[PostgreSQL安装和配置指南](../92-安装配置数据库软件/postgresql/README.md)
+
 
 ## 参考资料
 - [豆包AI-数据库服务器核心概念架构与实践指南](豆包AI数据库服务器核心概念架构与实践指南.md)
