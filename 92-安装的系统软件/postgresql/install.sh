@@ -110,7 +110,7 @@ export PG_BIN=${PG_HOME}/usr/pgsql-${PG_MAIN_VERSION}/bin
 export APP_NAME=postgresql
 export APP_HOME=${PG_HOME}
 export APP_DATA=/appvol/ilovemyhome/data/${APP_NAME}/DB
-export APP_LOG=/appvol/ilovemyhome/log/${APP_NAME}-${PG_MAIN_VERSION}
+export APP_LOG=/appvol/ilovemyhome/logs/${APP_NAME}-${PG_MAIN_VERSION}
 
 export PGDATA=${APP_DATA}
 

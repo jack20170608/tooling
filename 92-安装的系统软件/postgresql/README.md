@@ -20,18 +20,37 @@ PostgreSQL 是一款功能强大的开源对象关系型数据库系统，以其
 
 ## 初始化数据库
 ```bash
-
-"$PG_BIN"/initdb -D "$PGDATA"
+[jack@db20 bin]$ source /appvol/ilovemyhome/bin/set_pg_envs.sh && $PG_BIN/initdb
 ```
 
 ## 启动和停止
 请参考[app_postgresql.sh](app_postgresql.sh)
 
 ```shell
+## 启动
+[jack@db20 ~]$ /appvol/ilovemyhome/bin/app_postgresql.sh start
+## 停止
+[jack@db20 ~]$ /appvol/ilovemyhome/bin/app_postgresql.sh stop
+## 状态
+[jack@db20 ~]$ /appvol/ilovemyhome/bin/app_postgresql.sh status
+```
 
+## 测试
+```bash
+[jack@db20 bin]$ $PG_BIN/psql "host=localhost port=5432 dbname=postgres user=jack"
+psql (18.0)
+Type "help" for help.
+
+postgres=#
+```
+
+## 创建新的数据库
+```bash
+[jack@db20 bin]$ $PG_BIN/createdb -h localhost -p 5432 -U jack peanotes
 ```
 
 ## 安装过程中出现的问题
+
 ### 1. libicui18n.so.74: 无法找到共享库文件
 ```shell
 [jack@db20 bin]$ source /appvol/ilovemyhome/bin/set_pg_envs.sh && $PG_BIN/initdb
