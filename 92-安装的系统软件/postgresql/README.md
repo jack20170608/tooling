@@ -49,6 +49,18 @@ postgres=#
 [jack@db20 bin]$ $PG_BIN/createdb -h localhost -p 5432 -U jack peanotes
 ```
 
+## 创建用户
+```shell
+[jack@db20 ~]$ $PG_BIN/psql "host=localhost port=5432 dbname=postgres user=jack"
+psql (18.0)
+Type "help" for help.
+## Create user/role
+postgres=# CREATE ROLE jack LOGIN SUPERUSER PASSWORD '1';
+## Change password
+postgres=# ALTER USER jack WITH PASSWORD '1';
+ALTER ROLE
+```
+
 ## 安装过程中出现的问题
 
 ### 1. libicui18n.so.74: 无法找到共享库文件
