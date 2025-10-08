@@ -77,13 +77,13 @@ sudo cat /etc/sudoers | grep -E '^jack|^root'
 简单步骤,更换阿里云的国内源.
 ```shell
 ## 1 备份现有的配置文件
-[root@dns10 etc]# cp -r yum.repos.d yum.repos.d.bak
-[root@dns10 etc]# ls -dl yum.repos*
+[root@dns10 etc]# cp -r /etc/yum.repos.d /etc/yum.repos.d.bak
+[root@dns10 etc]# ls -dl /etc/yum.repos*
 drwxr-xr-x. 2 root root 4096 Sep 29 13:55 yum.repos.d
 drwxr-xr-x  2 root root 4096 Sep 29 14:15 yum.repos.d.bak
 ## 2.0 删除旧的配置文件
 ```shell
-[root@dns10 yum.repos.d]# ls
+[root@dns10 yum.repos.d]# cd /etc/yum.repos.d/ && ls
 epel.repo      epel-testing.repo  rocky-devel.repo   rocky-extras.repo.bak  rocky.repo.bak
 epel.repo.bak  rocky-addons.repo  rocky-extras.repo  rocky.repo
 [root@dns10 yum.repos.d]# rm -rf *
