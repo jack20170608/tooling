@@ -12,4 +12,4 @@
 
 ## 语言运行时
 - [JDK(Java Development Kit)](jdk)
-- [Golang](golang)
+- [GO SDK](golang)
