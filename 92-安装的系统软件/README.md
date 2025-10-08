@@ -11,5 +11,5 @@
 - [PostgreSQL 一种关系型数据库管理系统](postgresql)
 
 ## 语言运行时
-- [JDK](jdk)
+- [JDK(Java Development Kit)](jdk)
 - [Golang](golang)
