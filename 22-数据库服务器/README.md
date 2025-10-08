@@ -116,7 +116,7 @@ default via 10.10.10.2 dev ens160 proto static metric 100
 ## 3. 软件配置列表
 准备安装开源的数据库软件包括: PostgresSQL, MongoDB, Redis
 
-## 4. 关系型数据库postgres 安装和配置，实现数据库自由
+## 4. 关系型数据库postgres 安装和配置，实现关系型数据库自由
 
 
 ## 参考资料

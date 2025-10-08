@@ -16,4 +16,5 @@ postgresql-devel	libraries and headers for C language development
 ## 参考资料
 - [postgresql官方文档](https://www.postgresql.org/)
 - [postgresql download](https://www.postgresql.org/download/linux/redhat/)
+- [postgresql 18 download](https://download.postgresql.org/pub/repos/yum/18/redhat/rhel-10-x86_64/)
 - [豆包AI postgresql 简单介绍](./豆包AI-PostgreSQL简单介绍.md)
