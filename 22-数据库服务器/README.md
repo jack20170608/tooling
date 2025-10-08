@@ -122,5 +122,8 @@ default via 10.10.10.2 dev ens160 proto static metric 100
 ## 5. 安装MongoDB实现非关系型数据库自由
 请参考[MongoDB安装和配置指南](../92-安装的系统软件/mongodb/README.md)
 
+## 6. 安装Redis实现键值存储数据库自由
+请参考[Redis安装和配置指南](../92-安装的系统软件/redis/README.md)
+
 ## 参考资料
 - [豆包AI-数据库服务器核心概念架构与实践指南](豆包AI数据库服务器核心概念架构与实践指南.md)
