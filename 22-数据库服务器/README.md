@@ -80,10 +80,7 @@ default via 10.10.10.2 dev ens160 proto static metric 100
 172.16.0.0/16 dev ens224 proto kernel scope link src 172.16.10.20 metric 101
 ```
 
-## 2. 软件配置列表
-准备安装开源的数据库软件包括: PostgresSQL, MongoDB, Redis
-
-## 3. 关系型与非关系型数据库
+## 2. 关系型与非关系型数据库
 
 关系型数据库（Relational Database）和非关系型数据库（NoSQL Database）是两种不同类型的数据库管理系统，
 它们在数据存储结构、查询方式以及适用场景等方面存在显著差异。
@@ -115,6 +112,9 @@ default via 10.10.10.2 dev ens160 proto static metric 100
   - **图数据库**：如 Neo4j、Amazon Neptune，专为复杂网络结构数据设计，例如社交网络、推荐系统。
 
 选择哪种类型的数据库取决于具体的应用需求，包括数据结构、性能要求、扩展性等因素。
+
+## 3. 软件配置列表
+准备安装开源的数据库软件包括: PostgresSQL, MongoDB, Redis
 
 ## 4. 关系型数据库postgres 安装和配置，实现数据库自由
 
