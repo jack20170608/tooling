@@ -3,9 +3,9 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 echo "Current Dir: [${SCRIPT_DIR}]"
 
-RUNTIME_DIR="/appvol/ilovemyhome/runtime"
+APP_BIN_DIR="/appvol/ilovemyhome/bin"
 
-source "${RUNTIME_DIR}"/set_pg_envs.sh
+source "${APP_BIN_DIR}"/set_pg_envs.sh
 
 if [ "$APP_NAME" = "" ];
 then
@@ -38,9 +38,7 @@ fi
 echo "............................."
 echo "PG_BIN is $PG_BIN"
 echo "PGDATA is $PGDATA"
-echo "PGUSER  is $PGUSER"
-echo "PGPORT is $PGPORT"
-echo "PGHOST is $PGHOST"
+echo "APP_LOG is $APP_LOG"
 echo "............................."
 
 mkdir -pv "$APP_DATA" "$APP_LOG" "$PGDATA"
@@ -48,7 +46,7 @@ mkdir -pv "$APP_DATA" "$APP_LOG" "$PGDATA"
 
 function start()
 {
-  PID=$(pgrep -fa "$APP_NAME" | grep -Ev "app.sh|tail|grep" | cut -d ' ' -f1 )
+  PID=$(pgrep -fa "$APP_NAME" | grep -Ev "app_postgresql.sh|tail|grep" | cut -d ' ' -f1 )
 	if [ x"$PID" != x"" ]; then
 	    echo "$APP_NAME is running..."
 	else
@@ -60,14 +58,14 @@ function start()
 function stop()
 {
   echo "Stop $APP_NAME"
-  PID=$(pgrep -fa "$APP_NAME" | grep -Ev "app.sh|tail|grep" | cut -d ' ' -f1 )
+  PID=$(pgrep -fa "$APP_NAME" | grep -Ev "app_postgresql|tail|grep" | cut -d ' ' -f1 )
 	if [ x"$PID" != x"" ]; then
 	  "${PG_BIN}"/pg_ctl stop
 		echo "$APP_NAME (pid:$PID) exiting..."
 		while [ x"$PID" != x"" ]
 		do
 			sleep 1
-     PID=$(pgrep -fa "$APP_NAME" | grep -Ev "app.sh|tail|grep" | cut -d ' ' -f1 )
+     PID=$(pgrep -fa "$APP_NAME" | grep -Ev "app_postgresql.sh|tail|grep" | cut -d ' ' -f1 )
 		done
 		echo "$APP_NAME stop successfully..."
 	else
@@ -85,7 +83,7 @@ function restart()
 function status()
 {
   # shellcheck disable=SC2126
-   PID=$(pgrep -fa "$APP_NAME" | grep -Ev "app.sh|tail|grep" | wc -l )
+   PID=$(pgrep -fa "$APP_NAME" | grep -Ev "app_postgresql.sh|tail|grep" | wc -l )
     if [ $PID != 0 ];then
         echo "$APP_NAME is running..."
     else

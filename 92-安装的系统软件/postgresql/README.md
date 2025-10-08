@@ -16,6 +16,41 @@ PostgreSQL 是一款功能强大的开源对象关系型数据库系统，以其
 | **典型适用场景**      | 所有场景（客户端 / 服务器端 / 扩展运行）   | 纯客户端操作（连接、单库备份）               | 搭建数据库服务器（启动服务、管理数据）                        | 启用官方扩展（性能分析、全文检索）                             | 编译第三方程序（C 客户端）、开发自定义扩展                          |
 | **自定义安装关键作用**   | 提供动态库，确保其他包可运行            | 提供基础客户端工具，用于连接测试              | 提供服务器核心程序，初始化自定义数据目录（`/opt/pg18/data`）     | 提供扩展模块，增强数据库功能（如慢 SQL 分析）                     | 提供编译资源，支持开发定制化工具或扩展                             |
 
+参考[install.sh](install.sh)
+
+## 初始化数据库
+```bash
+
+"$PG_BIN"/initdb -D "$PGDATA"
+```
+
+## 启动和停止
+请参考[app_postgresql.sh](app_postgresql.sh)
+
+```shell
+
+```
+
+## 安装过程中出现的问题
+### 1. libicui18n.so.74: 无法找到共享库文件
+```shell
+[jack@db20 bin]$ source /appvol/ilovemyhome/bin/set_pg_envs.sh && $PG_BIN/initdb
+/appvol/ilovemyhome/runtime/postgresql-18/usr/pgsql-18/bin/initdb: error while loading shared libraries: libicui18n.so.74: cannot open shared object file: No such file or directory
+```
+解决方法,手动安装libicu。
+```shell
+[jack@db20 postgresql-18]$ sudo dnf install libicu
+Last metadata expiration check: 0:16:32 ago on Wed 08 Oct 2025 08:17:47 PM CST.
+Dependencies resolved.
+```
+
+### 2. error while loading shared libraries: liburing.so.2
+```shell
+[root@db20 ~]# dnf install liburing
+Last metadata expiration check: 0:18:26 ago on Wed 08 Oct 2025 08:17:47 PM CST.
+Dependencies resolved.
+```
+
 
 
 ## 参考资料

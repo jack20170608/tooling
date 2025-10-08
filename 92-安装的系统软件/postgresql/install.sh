@@ -31,8 +31,6 @@ done
 
 version=18
 baseUrl="https://download.postgresql.org/pub/repos/yum/18/redhat/rhel-10-x86_64/"
-#baseUrl="https://get.enterprisedb.com/postgresql/"
-commonBaseUrl="https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-10-x86_64/"
 
 sudo mkdir -pv /appvol/ilovemyhome/{bin,config,libs,data,install,logs,runtime,tmp,download} &&
 	sudo chown -R jack:jack /appvol/ilovemyhome &&
@@ -44,7 +42,6 @@ INSTALL_HOME=/appvol/ilovemyhome/install/postgresql-${version}
 RUNTIME_DIR=/appvol/ilovemyhome/runtime/postgresql-${version}
 DATA_HOME=/appvol/ilovemyhome/data/postgresql-${version}
 LOG_HOME=/appvol/ilovemyhome/logs/postgresql-${version}
-
 
 
 # Clean the download and install directory
@@ -100,7 +97,7 @@ rm -rf ${RUNTIME_DIR} &&
 	ln -s ${INSTALL_HOME} ${RUNTIME_DIR}
 
 ## Set the environment variables
-cat <<'EOF' > "/appvol/ilovemyhome/runtime"
+cat <<'EOF' > "/appvol/ilovemyhome/bin/set_pg_envs.sh"
 # user specific settings for postgresql
 
 export PG_MAIN_VERSION=18
@@ -109,4 +106,15 @@ export PG_LIB=${PG_HOME}/usr/pgsql-${PG_MAIN_VERSION}/lib:${PG_HOME}/usr/lib
 export LD_LIBRARY_PATH=${PG_LIB}:$LD_LIBRARY_PATH
 export PG_BIN=${PG_HOME}/usr/pgsql-${PG_MAIN_VERSION}/bin
 
+## The App data environment variables
+export APP_NAME=postgresql
+export APP_HOME=${PG_HOME}
+export APP_DATA=/appvol/ilovemyhome/data/${APP_NAME}/DB
+export APP_LOG=/appvol/ilovemyhome/log/${APP_NAME}-${PG_MAIN_VERSION}
+
+export PGDATA=${APP_DATA}
+
 EOF
+
+source /appvol/ilovemyhome/bin/set_pg_envs.sh \
+&& "$PG_BIN"/psql --version
