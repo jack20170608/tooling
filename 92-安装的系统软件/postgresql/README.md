@@ -23,6 +23,11 @@ PostgreSQL 是一款功能强大的开源对象关系型数据库系统，以其
 [jack@db20 bin]$ source /appvol/ilovemyhome/bin/set_pg_envs.sh && $PG_BIN/initdb
 ```
 
+## 设置一个简单postgresql的配置文件
+
+参考[postgresql.conf](conf/18/postgresql.conf)
+参考[pg_hba.conf](conf/18/pg_hba.conf)
+
 ## 启动和停止
 请参考[app_postgresql.sh](app_postgresql.sh)
 

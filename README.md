@@ -6,10 +6,10 @@
 
 ```text
 VmNet8 NAT
-宿主 10.10.10.1, 网关地址: 10.10.10.2, 网段: 10.10.10.0/8
+宿主 10.10.10.1, 网关地址: 10.10.10.2, 网段: 10.0.0.0/8
 
 VmNet1 仅主机
-网段: 172.16.10.0/16, 不用设置网关和DNS
+网段: 172.16.0.0/16, 不用设置网关和DNS
 
 VmNet9 仅主机
 网段: 192.168.10.0/24, 不用设置网关和DNS
@@ -27,14 +27,9 @@ VmNet9 仅主机
 - [RockyLinux10-setup](11-RockyLinux10-OS-setup)
 
 ### 2.2 RockyLinux10安装常用工具软件
-```shell
-sudo dnf install -y vim git wget curl net-tools bind-utils
-```
-
 - [RockyLinux10 安装常用软件工具](12-RockyLinux10-install-common-tools)
 
 ### 2.3 系统环境初始化
-
 - [执行setup_environment.sh](common/setup_environment.sh)
 
 这个脚本基本也是AI
@@ -65,16 +60,10 @@ export PATH=${PATH}:$APP_ROOT/bin
 
 ```
 
-## 2.1 DNS域名解析服务器
+## 2.1 DNS以及文件共享服务器
+参考[21-DNS以及文件共享服务器](21-DNS以及文件共享服务器)
 
-
-### 2.1.5 配置和启动file browser
-参考资料
-
-- [设置和安装 FileBrowser](96-安装的应用软件/filebrowser/README.md)
-- [Rocky Linux 安装 FileBrowser](https://www.doubao.com/thread/wb2cd96464368a043)
-
-## 2.2 系统服务器
+## 2.2 数据库服务器
 系统服务器主要安装第三方的软件和服务，例如数据库服务，缓存服务，消息队列服务等等。这里所有的软件都不采用系统默认的安装方式，全部都是手动自定义安装。
 并采用统一的脚本来进行生命周期管理。
 这里的硬件配置会稍微稍高一些。
@@ -82,14 +71,14 @@ export PATH=${PATH}:$APP_ROOT/bin
 硬件配置如下：
 
 ### 2.2.1 安装postgresql数据库
-
 ### 2.2.2 安装redis数据库
 
 ## 2.3 应用服务器
 主要用来安装自己编写的应用程序，例如web应用，api应用，python应用，go应用等等。
 
-### 2.3.1 安装java运行环境，这里会安装jdk8,jdk11,jdk17,jdk21以及jdk25
+### 2.3.1 安装java运行环境，这里会选择安装jdk17,jdk21以及jdk25
 通过设置JAVA_HOME环境变量，设置jdk的安装目录，默认的JAVA_HOME为最新版本的jdk。
+参考[安装jdk](92-安装的系统软件/jdk)
 
 ### 2.3.2 安装maven3
 

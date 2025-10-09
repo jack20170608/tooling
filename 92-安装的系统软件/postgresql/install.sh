@@ -22,15 +22,18 @@ while getopts "cdi" opt; do
 	*) # Show help information
 		echo "Usage: $0 [-c][-d] [-i]"
 		echo "  -c: Clean the download and install directory"
-		echo "  -d: Skip download step"
-		echo "  -i: Skip installation step"
+		echo "  -d: Enable download"
+		echo "  -i: Enable installation step"
 		exit 1
 		;;
 	esac
 done
 
 version=18
-baseUrl="https://download.postgresql.org/pub/repos/yum/18/redhat/rhel-10-x86_64/"
+
+## The original download url
+#baseUrl="https://download.postgresql.org/pub/repos/yum/18/redhat/rhel-10-x86_64/"
+baseUrl="http://dns10.t/ilovemyhome/download/postgresql-18/"
 
 sudo mkdir -pv /appvol/ilovemyhome/{bin,config,libs,data,install,logs,runtime,tmp,download} &&
 	sudo chown -R jack:jack /appvol/ilovemyhome &&
