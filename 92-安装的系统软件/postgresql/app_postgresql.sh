@@ -2,7 +2,6 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 echo "Current Dir: [${SCRIPT_DIR}]"
-
 APP_BIN_DIR="/appvol/ilovemyhome/bin"
 
 source "${APP_BIN_DIR}"/set_pg_envs.sh
