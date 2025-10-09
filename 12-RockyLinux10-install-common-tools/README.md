@@ -8,9 +8,9 @@
 && dnf install -y tree tar htop
 ```
 
-- [vim安装详细介绍](./vim)
-- [git安装详细介绍](./git)
+- [git](./git)
 - [network相关工具](./network-related)
 - [tree](./tree)
 - [htop](./htop)
 - [tar](./tar)
+- [vim](./vim)
