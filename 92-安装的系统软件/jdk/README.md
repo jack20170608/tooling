@@ -92,7 +92,7 @@ openjdk version "21.0.8" 2025-07-15 LTS
 && rm -f zulu25.28.85-ca-jdk25.0.0-linux_x64.tar.gz
 
 ## 设置环境变量
-[root@dns10 ~]# cat <<'EOF' > "/etc/profile.d/jdk-25.sh"
+[jack@dns10 ~]# sudo cat <<'EOF' > "/etc/profile.d/jdk-25.sh"
 export JAVA_25_HOME=/appvol/ilovemyhome/runtime/jdk-25
 export PATH=$JAVA_25_HOME/bin:$PATH
 export JAVA_HOME=$JAVA_25_HOME

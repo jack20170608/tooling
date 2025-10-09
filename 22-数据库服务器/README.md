@@ -122,8 +122,8 @@ default via 10.10.10.2 dev ens160 proto static metric 100
 ## 5. 安装MongoDB实现非关系型数据库自由
 请参考[MongoDB安装和配置指南](../92-安装的系统软件/mongodb/README.md)
 
-## 6. 安装Redis实现键值存储数据库自由
-请参考[Redis安装和配置指南](../92-安装的系统软件/redis/README.md)
+## 6. 安装valkey实现键值存储数据库自由
+请参考[valkey的安装和配置指南](../92-安装的系统软件/valkey/README.md)
 
 ## 7. 安装时间序列数据库
 
