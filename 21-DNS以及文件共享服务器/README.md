@@ -3,7 +3,7 @@
 DNS服务器作为内部域名服务器。
 - 主要的功能就是为内部的主机提供域名解析服务，实现域名自由。
 - 文件共享服务，实现文件共享自由。
-- 
+- 监控服务，实现监控自由。
 
 ## 1.服务器规格
 
@@ -194,3 +194,6 @@ EOF
 参考资料
 - [豆包AI 使用http-file-server搭建一个文件服务器](../92-安装的系统软件/http-file-server/使用http-file-server搭建一个文件共享服务器.md)
 - [http-file-server gitHub项目地址](https://github.com/sgreben/http-file-server)
+
+
+## 5. 安装prometheus和grafana来实现监控自由
