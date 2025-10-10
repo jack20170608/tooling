@@ -64,7 +64,7 @@ fi
 ## Install
 if [ "$DO_INSTALL" = true ]; then
 	echo "Installing valkey-${version} ..."
-	tar -zxvf valkey-${version}-noble-x86_64.tar.gz -C ${INSTALL_HOME}
+	tar -zxvf valkey-${version}-noble-x86_64.tar.gz -C ${INSTALL_HOME} || exit 1
 	cd ${INSTALL_HOME} || exit 1
 	mv valkey-${version}-noble-x86_64 valkey-${version}
 	# Create a symbolic link
