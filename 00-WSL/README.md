@@ -30,8 +30,11 @@ $ wsl -l -v
 NAME            STATE           VERSION
 * Ubuntu-24.04    Stopped         2
 
-## shutdown wsl 
+## shutdown wsl all running sub systems
 $ wsl --shutdown
+
+## 只关闭某些wsl子系统
+wsl --terminate Ubuntu-24.04-docker
 
 ```
 
