@@ -131,9 +131,44 @@ git worktree remove -f <path>                 # 强制删除
 git worktree prune
 ```
 
-## 6. 注意事项与陷阱
+## 6. 在 Worktree 之间合并
 
-### 6.1 同一个分支不能同时存在于多个 worktree
+所有 worktree 共享同一个 Git 对象数据库（objects 和 refs），分支信息全局可见。因此，在 **main worktree 的目录里**直接就能 merge 其他分支。
+
+```bash
+# 进入 main worktree
+cd ../main
+
+# 直接 merge 其他 worktree 对应的分支
+git merge feature-login
+```
+
+### 6.1 跨目录操作（不推荐）
+
+不要站在其他 worktree 的目录里操作另一个 worktree。如果确实需要，必须显式指定 `--git-dir` 和 `--work-tree`：
+
+```bash
+# 不推荐：在 feature-login/ 里操作 main
+cd ../feature-login
+git --git-dir=../main/.git --work-tree=../main merge feature-login
+```
+
+**推荐做法**：直接 cd 到目标 worktree 目录执行 merge，简洁直观且安全。
+
+### 6.2 合并前的检查
+
+```bash
+cd ../main
+git fetch origin
+git log --oneline --graph --left-right main...feature-login  # 查看差异
+git merge --no-ff feature-login                              # 合并
+```
+
+> 合并前确保目标 worktree 的工作区干净（无未提交更改），规则与普通仓库一致。
+
+## 7. 注意事项与陷阱
+
+### 7.1 同一个分支不能同时存在于多个 worktree
 
 ```bash
 # 错误：main 已检出到 ../main
@@ -143,7 +178,7 @@ git worktree add ../another-main main
 
 **解决**：一个分支只能对应一个 worktree。如需第二个副本，创建临时分支。
 
-### 6.2 子模块
+### 7.2 子模块
 
 Worktree 中的子模块默认独立初始化，需手动同步：
 
@@ -152,7 +187,7 @@ cd <worktree-path>
 git submodule update --init --recursive
 ```
 
-### 6.3 未提交更改的保护
+### 7.3 未提交更改的保护
 
 ```bash
 # git worktree remove 会阻止删除有未提交更改的 worktree
@@ -162,13 +197,13 @@ git worktree remove ../feature-x
 # 建议先清理或提交，再删除；或使用 --force 谨慎强制删除
 ```
 
-### 6.4 IDE 与工具兼容性
+### 7.4 IDE 与工具兼容性
 
 - VS Code: 可直接打开各 worktree 目录作为独立窗口
 - JetBrains: 每个 worktree 作为独立项目打开
 - 全局搜索工具（如 `ripgrep`）：注意排除其他 worktree 目录避免重复结果
 
-## 7. 清理策略
+## 8. 清理策略
 
 ```bash
 # 手动清理已合并的特性分支 worktree
@@ -182,7 +217,7 @@ done
 git worktree prune
 ```
 
-## 8. 与主流工作流的结合
+## 9. 与主流工作流的结合
 
 ### Git Flow
 
@@ -208,7 +243,7 @@ git worktree remove ../pr-small-change
 git branch -D feat/small-change
 ```
 
-## 9. 总结
+## 10. 总结
 
 | 原则 | 说明 |
 |------|------|
