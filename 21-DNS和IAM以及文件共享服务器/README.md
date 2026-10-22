@@ -195,5 +195,7 @@ EOF
 - [豆包AI 使用http-file-server搭建一个文件服务器](../92-安装的系统软件/http-file-server/使用http-file-server搭建一个文件共享服务器.md)
 - [http-file-server gitHub项目地址](https://github.com/sgreben/http-file-server)
 
+## 5. 安装Keycloak来实现统一身份认证和单点登录
 
-## 5. 安装prometheus和grafana来实现监控自由
+
+## 6. 安装prometheus和grafana来实现监控自由
