@@ -225,30 +225,6 @@ Keycloak 是一个开源的身份和访问管理（IAM）服务，支持 OpenID 
 下面除了注明在 `db20` 上执行的命令以外，都在 `dns10` 上执行。
 先通过 `sudo -i` 进入 root 的 Bash 会话，后续安装命令均在这个会话中执行。
 
-**安装前先隔离文件共享目录。** 第 4 章的文件服务以 root 运行且共享了整个 `/appvol/ilovemyhome`，
-会暴露后续放在这个目录下的密码、证书私钥和数据库备份，不能只靠文件权限防护。
-如果已经启动该服务，先停止它并创建独立的公开目录：
-
-```bash
-systemctl stop http-file-server
-install -d -m 0755 /appvol/ilovemyhome/share
-```
-
-编辑 `/etc/systemd/system/http-file-server.service`，将 `ExecStart` 改为：
-
-```ini
-ExecStart=/usr/local/bin/http-file-server -addr :80 /appvol/ilovemyhome/share
-```
-
-然后重新加载并启动：
-
-```bash
-systemctl daemon-reload
-systemctl restart http-file-server
-```
-
-确认文件服务只展示 `share` 内明确公开的文件，再继续安装。如果尚未安装第 4 章的文件服务，
-以后也应使用这个独立目录作为共享根目录，不要共享整个应用根目录。
 
 ### 5.2 配置域名和 Java 环境
 
@@ -381,7 +357,7 @@ install -d -o root -g keycloak -m 0750 /appvol/ilovemyhome/config/keycloak
 如果暂时没有 CA，可以在家庭实验环境中生成一张有效期为一年的自签名证书：
 
 ```bash
-openssl req -x509 -newkey rsa:3072 -sha256 -noenc -days 365 \
+openssl req -x509 -newkey rsa:3072 -sha256 -noenc -days 1024 \
   -keyout /appvol/ilovemyhome/config/keycloak/tls.key \
   -out /appvol/ilovemyhome/config/keycloak/tls.crt \
   -subj "/CN=sso.ilovemyhome.top" \
