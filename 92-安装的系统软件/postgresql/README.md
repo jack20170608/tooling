@@ -29,7 +29,7 @@ PostgreSQL 是一款功能强大的开源对象关系型数据库系统，以其
 参考[pg_hba.conf](conf/18/pg_hba.conf)
 
 ## 启动和停止
-请参考[app_postgresql.sh](app_postgresql.sh)
+手动启动和停止时，可参考[app_postgresql.sh](app_postgresql.sh)；需要开机启动时，请改用下一节的 systemd 服务。
 
 ```shell
 ## 启动
@@ -38,6 +38,61 @@ PostgreSQL 是一款功能强大的开源对象关系型数据库系统，以其
 [jack@db20 ~]$ /appvol/ilovemyhome/bin/app_postgresql.sh stop
 ## 状态
 [jack@db20 ~]$ /appvol/ilovemyhome/bin/app_postgresql.sh status
+```
+
+## 配置 systemd 服务并开机启动
+
+使用 systemd 管理后，PostgreSQL 会以 `jack` 用户运行，并在系统启动时自动启动。服务文件参考 [postgresql.service](postgresql.service)，
+其中的路径与 `set_pg_envs.sh` 一致；如果修改了版本或数据目录，需要同步修改服务文件。
+
+先停止通过 `app_postgresql.sh` 启动的实例，避免两个进程使用同一个数据目录：
+
+```shell
+[jack@db20 ~]$ /appvol/ilovemyhome/bin/app_postgresql.sh stop
+```
+
+以 root 身份安装并启用服务（`/path/to` 替换为本仓库所在位置）：
+
+```shell
+[root@db20 ~]# install -o root -g root -m 0644 \
+  /path/to/92-安装的系统软件/postgresql/postgresql.service \
+  /etc/systemd/system/postgresql.service
+[root@db20 ~]# systemctl daemon-reload
+[root@db20 ~]# systemctl enable --now postgresql
+```
+
+检查服务状态和运行用户：
+
+```shell
+[root@db20 ~]# systemctl status postgresql --no-pager
+[root@db20 ~]# systemctl is-enabled postgresql
+[root@db20 ~]# ps -o user,pid,cmd -C postgres
+```
+
+`systemctl is-enabled` 应返回 `enabled`，`postgres` 进程的用户应为 `jack`。日志可通过 `journalctl` 查看：
+
+```shell
+[root@db20 ~]# journalctl -u postgresql -n 100 --no-pager
+```
+
+之后统一使用 systemctl 管理，不要再与 `app_postgresql.sh start/stop` 混用：
+
+```shell
+systemctl start postgresql
+systemctl stop postgresql
+systemctl restart postgresql
+systemctl reload postgresql   # 重新加载 postgresql.conf / pg_hba.conf 中支持热加载的参数
+```
+
+建议重启一次服务器，确认开机后 PostgreSQL 自动运行。
+
+如果启动失败且 `journalctl` 中出现 `status=203/EXEC` 或 `Permission denied`，先检查 `jack` 是否能访问上述路径。
+如果 SELinux 处于 Enforcing 并出现 AVC 拒绝（`ausearch -m AVC -ts recent`），可为自定义安装的程序目录设置可执行标签：
+
+```shell
+[root@db20 ~]# semanage fcontext -a -t bin_t "/appvol/ilovemyhome/install/postgresql-18/usr/pgsql-18/bin(/.*)?"
+[root@db20 ~]# restorecon -Rv /appvol/ilovemyhome/install/postgresql-18/usr/pgsql-18/bin
+[root@db20 ~]# systemctl restart postgresql
 ```
 
 ## 测试

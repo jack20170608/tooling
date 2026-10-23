@@ -1,0 +1,29 @@
+[Unit]
+Description=PostgreSQL 18 database server
+Documentation=https://www.postgresql.org/docs/18/server-start.html
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=jack
+Group=jack
+
+Environment=PGDATA=/appvol/ilovemyhome/data/postgresql/DB
+Environment=LD_LIBRARY_PATH=/appvol/ilovemyhome/runtime/postgresql-18/usr/pgsql-18/lib:/appvol/ilovemyhome/runtime/postgresql-18/usr/lib
+Environment=PG_OOM_ADJUST_FILE=/proc/self/oom_score_adj
+Environment=PG_OOM_ADJUST_VALUE=0
+
+# PGDG 编译的默认 Unix socket 目录为 /run/postgresql，由 systemd 创建并交给 jack
+RuntimeDirectory=postgresql
+RuntimeDirectoryMode=0755
+
+ExecStart=/appvol/ilovemyhome/runtime/postgresql-18/usr/pgsql-18/bin/postgres -D ${PGDATA}
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=mixed
+KillSignal=SIGINT
+TimeoutSec=infinity
+OOMScoreAdjust=-1000
+
+[Install]
+WantedBy=multi-user.target

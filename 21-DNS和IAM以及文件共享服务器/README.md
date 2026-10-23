@@ -351,25 +351,78 @@ install -d -o root -g keycloak -m 0750 /appvol/ilovemyhome/config/keycloak
 
 ### 5.5 配置 HTTPS 和服务参数
 
-正式使用时，优先准备由客户端信任的 CA 签发的证书，证书 SAN 必须包含 `sso.ilovemyhome.top`。
-将 PEM 格式的完整证书链和不带口令的私钥分别放到下面的 `tls.crt`、`tls.key` 路径。
+使用前文创建的内部 Root CA 为 Keycloak 签发服务器证书。证书 SAN 必须包含 Keycloak 对外使用的主机名 `sso.ilovemyhome.top`。
+以下分为 Keycloak 主机和 CA 管理端两部分；Root CA 私钥只保留在 CA 管理端，不要复制到 `dns10`。
 
-如果暂时没有 CA，可以在家庭实验环境中生成一张有效期为一年的自签名证书：
+先在 `dns10` 上生成 Keycloak 专用私钥和 CSR：
 
 ```bash
-openssl req -x509 -newkey rsa:3072 -sha256 -noenc -days 1024 \
-  -keyout /appvol/ilovemyhome/config/keycloak/tls.key \
-  -out /appvol/ilovemyhome/config/keycloak/tls.crt \
-  -subj "/CN=sso.ilovemyhome.top" \
-  -addext "subjectAltName=DNS:sso.ilovemyhome.top" \
-  -addext "extendedKeyUsage=serverAuth"
+umask 077
+openssl genpkey \
+  -algorithm RSA \
+  -pkeyopt rsa_keygen_bits:3072 \
+  -out /appvol/ilovemyhome/config/keycloak/tls.key
 
-chown root:keycloak /appvol/ilovemyhome/config/keycloak/tls.{crt,key}
-chmod 0640 /appvol/ilovemyhome/config/keycloak/tls.{crt,key}
+openssl req -new \
+  -key /appvol/ilovemyhome/config/keycloak/tls.key \
+  -out /tmp/keycloak.csr.pem \
+  -subj "/C=CN/O=Home Lab/OU=Services/CN=sso.ilovemyhome.top"
+
+chmod 0640 /appvol/ilovemyhome/config/keycloak/tls.key
 ```
 
-自签名证书默认不受浏览器和应用信任，需要在客户端按其证书信任机制显式信任，或换成受信任 CA 签发的证书。
-只分发公有证书，不要分发 `tls.key`，也不要在应用中关闭证书校验。
+将 `/tmp/keycloak.csr.pem` 安全地复制到 CA 管理端。CSR 只包含公钥和名称信息，不包含私钥。
+
+在 CA 管理端（假设前文的 CA 文件位于 `~/internal-pki`）创建服务器证书扩展文件并签发证书：
+
+```bash
+cd ~/internal-pki
+
+cat > keycloak.ext <<'EOF'
+[server_cert]
+basicConstraints = critical,CA:FALSE
+keyUsage = critical,digitalSignature,keyEncipherment
+extendedKeyUsage = serverAuth
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = sso.ilovemyhome.top
+EOF
+
+openssl x509 -req \
+  -in /tmp/keycloak.csr.pem \
+  -CA certs/rootCA.cert.pem \
+  -CAkey private/rootCA.key.pem \
+  -CAcreateserial \
+  -out certs/keycloak.crt.pem \
+  -days 397 \
+  -sha256 \
+  -extfile keycloak.ext \
+  -extensions server_cert
+
+openssl verify \
+  -CAfile certs/rootCA.cert.pem \
+  -purpose sslserver \
+  -verify_hostname sso.ilovemyhome.top \
+  keycloak.crt.pem
+```
+
+将 `/tmp/keycloak.csr.pem` 替换为收到的 CSR 文件路径。签发时会提示输入 Root CA 私钥口令。验证成功后应显示 `keycloak.crt.pem: OK`。再将签发的 `keycloak.crt.pem` 安全地复制回 `dns10`；不要复制 Root CA 私钥。
+
+在 `dns10` 上将证书安装到 Keycloak 配置目录，并设置权限：
+
+```bash
+install -o root -g keycloak -m 0640 \
+  certs/keycloak.crt.pem \
+  /appvol/ilovemyhome/config/keycloak/tls.crt
+
+chown root:keycloak /appvol/ilovemyhome/config/keycloak/tls.key
+chmod 0640 /appvol/ilovemyhome/config/keycloak/tls.key
+```
+
+将 `/path/to/keycloak.crt.pem` 替换为从 CA 管理端收到的证书文件路径。`tls.crt` 是 PEM 格式的服务器证书，`tls.key` 是与 CSR 对应的 PEM 私钥；二者都应由 `keycloak` 组可读。客户端应信任 Root CA 证书，而不是关闭 TLS 校验。
 
 创建主配置文件：
 
@@ -492,12 +545,11 @@ curl --fail --silent --show-error http://127.0.0.1:9000/health/ready
 
 ```bash
 curl --fail --silent --show-error \
-  --cacert /appvol/ilovemyhome/config/keycloak/tls.crt \
+  --cacert /path/to/rootCA.cert.pem \
   https://sso.ilovemyhome.top:8443/realms/master/.well-known/openid-configuration
 ```
 
-自签名示例可以直接将 `tls.crt` 作为本次请求的信任锚。
-如果使用 CA 签发的证书，`--cacert` 应改成对应的 CA 证书文件，或在系统已信任该 CA 时省略此参数。
+将 `/path/to/rootCA.cert.pem` 替换为 Root CA 公有证书的实际路径；如果运行 curl 的系统已信任该 CA，也可以省略 `--cacert`。
 返回 JSON 中的 `issuer` 应为 `https://sso.ilovemyhome.top:8443/realms/master`。
 还应从实际客户端验证 DNS、证书信任及网络访问，不能只在服务器本机测试。
 

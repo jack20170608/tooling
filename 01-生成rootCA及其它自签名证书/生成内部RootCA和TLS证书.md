@@ -205,7 +205,62 @@ openssl verify \
 
 实际服务端配置通常需要服务器证书和对应私钥。按服务要求配置证书路径；如服务要求完整链文件，可将服务器证书与必要的中间 CA 证书按服务文档指定的顺序组合。不要把 Root CA 私钥放到服务端。
 
-## 六、确实需要独立自签名服务器证书时
+## 六、在 Windows 中信任 Root CA
+
+Windows 信任内部 CA 的方式是将 **Root CA 公有证书**安装到“受信任的根证书颁发机构”存储区，不需要 P12 文件。
+
+先在 CA 管理端将 PEM 证书转换成 Windows 常用的 DER `.cer` 文件：
+
+```bash
+openssl x509 \
+  -in certs/rootCA.cert.pem \
+  -outform DER \
+  -out certs/rootCA.cer
+```
+
+通过可信渠道将 `rootCA.cer` 复制到 Windows，并核对 SHA-256 指纹。CA 管理端查看 PEM 指纹：
+
+```bash
+openssl x509 -in certs/rootCA.cert.pem -noout -fingerprint -sha256
+```
+
+Windows 上可用 `certutil` 安装到本机根证书存储区。请在“以管理员身份运行”的终端中执行：
+
+```powershell
+certutil -addstore -f Root C:\path\to\rootCA.cer
+```
+
+也可以运行 `mmc`，添加“证书”管理单元，选择“计算机帐户”→“本地计算机”，再将 `rootCA.cer` 导入“受信任的根证书颁发机构\证书”。只有在确认指纹可信后，才应将证书设为受信任根 CA。需要管理多台 Windows 设备时，优先通过组织的组策略或设备管理系统部署。
+
+## 七、按需将 Root CA 证书和私钥打包为 P12/PFX
+
+只有在 Windows 设备确实需要使用 Root CA 私钥签发证书时，才创建包含 Root CA 私钥的 P12 文件。**仅为了让 Windows 信任 Root CA，不要创建或导入这种文件**；安装上节的 `rootCA.cer` 即可。
+
+在 CA 管理端执行以下命令。命令会提示输入 Root CA 私钥口令及 P12 导出密码：
+
+```bash
+openssl pkcs12 -export \
+  -inkey private/rootCA.key.pem \
+  -in certs/rootCA.cert.pem \
+  -name "Home Lab Root CA" \
+  -out rootCA.p12
+
+chmod 600 rootCA.p12
+```
+
+P12/PFX 包含可用于签发证书的 Root CA 私钥，安全等级与 `rootCA.key.pem` 相同。不要通过普通邮件、聊天工具或不受控网盘传输，也不要放在业务服务器上；确需转移时应使用受控的加密介质，单独、安全地传递导出密码，并在导入后保护或删除临时副本。Windows 上可以用管理员 PowerShell 将它导入本机“个人”存储区：
+
+```powershell
+$password = Read-Host "输入 P12 导出密码" -AsSecureString
+Import-PfxCertificate `
+  -FilePath C:\path\to\rootCA.p12 `
+  -CertStoreLocation Cert:\LocalMachine\My `
+  -Password $password
+```
+
+导入后，私钥位于“个人”存储区，Root CA 公有证书仍应按上一节单独安装到“受信任的根证书颁发机构”存储区。限制可访问该私钥的账户；如不需要在 Windows 上签发证书，应避免导入 P12，并将 Root CA 私钥继续离线保存。
+
+## 八、确实需要独立自签名服务器证书时
 
 只有少量临时测试服务、且愿意逐台配置客户端信任时，才考虑独立自签名证书。例如：
 
@@ -228,7 +283,7 @@ chmod 600 git-test.key.pem
 
 `-nodes` 表示私钥不加密，适合需要在服务启动时自动读取私钥的场景，但必须通过文件权限等方式保护。客户端需要单独信任 `git-test.cert.pem`；如果服务增多或证书频繁更新，应改用前面的内部 CA 方案。
 
-## 七、证书与私钥管理注意事项
+## 九、证书与私钥管理注意事项
 
 - Root CA 私钥离线或严格隔离保存，限制访问并制作受保护的备份；不要提交到 Git、同步到普通网盘或放在业务服务器上。
 - Root CA 证书可以分发，但在信任它之前，需通过独立可信渠道核对指纹。
