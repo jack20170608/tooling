@@ -183,21 +183,49 @@ openssl x509 \
 openssl x509 -in certs/rootCA.cert.pem -noout -fingerprint -sha256
 ```
 
-通过可信渠道将 `rootCA.cert.pem` 复制到 Rocky Linux 客户端（以下假设文件位于 `/tmp/rootCA.cert.pem`），核对指纹一致后安装：
+通过可信渠道将 `rootCA.cert.pem` 复制到 Linux 客户端（以下假设文件位于 `/tmp/rootCA.cert.pem`），先核对指纹：
 
 ```bash
 openssl x509 -in /tmp/rootCA.cert.pem -noout -fingerprint -sha256
+```
 
+指纹一致后，按发行版安装到系统信任库。系统工具只接受 PEM 格式；如果拿到的是 Windows 使用的 DER `.cer` 文件，先转换：
+
+```bash
+openssl x509 -inform DER -in rootCA.cer -out /tmp/rootCA.cert.pem
+```
+
+**Rocky Linux / RHEL / Fedora：**
+
+```bash
 sudo install -m 0644 /tmp/rootCA.cert.pem \
   /etc/pki/ca-trust/source/anchors/internal-root-ca.crt
 sudo update-ca-trust extract
 ```
 
-不同操作系统和应用可能使用不同的证书信任库；有些应用还需要单独配置 CA 文件。安装后，可用以下命令验证服务器证书：
+**Debian / Ubuntu**（目标文件扩展名必须是 `.crt`）：
+
+```bash
+sudo install -m 0644 /tmp/rootCA.cert.pem \
+  /usr/local/share/ca-certificates/internal-root-ca.crt
+sudo update-ca-certificates
+```
+
+安装后，可以访问内部 HTTPS 服务做验证，输出中不应出现证书校验错误：
+
+```bash
+curl -v https://sso.ilovemyhome.top:8443/
+```
+
+卸载时删除上述目标文件，然后在 Rocky 上执行 `sudo update-ca-trust extract`，在 Ubuntu 上执行 `sudo update-ca-certificates --fresh`。
+
+注意：Firefox、Java 等应用可能使用各自的证书库，不一定读取系统信任库。例如 Java 需要使用 `keytool -importcert` 将 Root CA 导入其 `cacerts`；有些应用还需要单独配置 CA 文件。
+
+也可以直接用 Root CA 验证服务器证书文件：
 
 ```bash
 openssl verify \
-  -CAfile /etc/pki/ca-trust/source/anchors/internal-root-ca.crt \
+  -CAfile /tmp/rootCA.cert.pem \
   -purpose sslserver \
   -verify_hostname www.ilovemyhome.top \
   certs/www.ilovemyhome.top.cert.pem
